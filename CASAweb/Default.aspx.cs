@@ -1,22 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
 using System.Data;
 using System.Data.SqlClient;
-using System.ComponentModel.DataAnnotations;
-using System.Collections;
-using Microsoft.Ajax.Utilities;
 using System.Globalization;
 
 namespace CASAweb
 {
     public partial class CreateProduct : System.Web.UI.Page
     {
-        //SqlConnection con = new SqlConnection(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Products.mdf;Integrated Security=True");
-
         private SqlConnection CreateConnection()
         {
             var con = new SqlConnection(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Products.mdf;Integrated Security=True");
@@ -70,24 +61,29 @@ namespace CASAweb
 
         private void CreateGLs(int productId)
         {
-            bool isInterestPayable = InterestPayable.Checked;
-            bool isInterestExpense = InterestExpense.Checked;
-            bool isGeneralFeeIncome = GeneralFeeIncome.Checked;
-            bool isMaintenanceFee = MaintenanceFee.Checked;
+            List<(string GLName, string GLClass, string GLCode)> applicableGLs = new List<(string, string, string)>();
 
-            string[] glNames = { "Interest Payable", "Interest Expense", "General Fee Income", "Maintenance Fee" };
-            string[] glClasses = { "Liability", "Expense", "Income", "Income" };
-            string[] glCodes = { "GL1", "GL2", "GL3", "GL4" };
+            if (InterestPayable.Checked)
+                applicableGLs.Add(("Interest Payable", "Liability", "GL1"));
+
+            if (InterestExpense.Checked)
+                applicableGLs.Add(("Interest Expense", "Expense", "GL2"));
+
+            if (GeneralFeeIncome.Checked)
+                applicableGLs.Add(("General Fee Income", "Income", "GL3"));
+
+            if (MaintenanceFee.Checked)
+                applicableGLs.Add(("Maintenance Fee", "Income", "GL4"));
 
             using (var con = CreateConnection())
             {
-                for (int i = 0; i < glNames.Length; i++)
+                foreach (var(GLName, GLClass, GLCode) in applicableGLs)
                 {
                     using (var cmd = new SqlCommand("INSERT INTO GLTable (GLName, GLCode, GLClass, ProductId) VALUES (@GLName, @GLCode, @GLClass, @ProductId)", con))
                     {
-                        cmd.Parameters.AddWithValue("@GLName", glNames[i]);
-                        cmd.Parameters.AddWithValue("@GLCode", glCodes[i]);
-                        cmd.Parameters.AddWithValue("@GLClass", glClasses[i]);
+                        cmd.Parameters.AddWithValue("@GLName", GLName);
+                        cmd.Parameters.AddWithValue("@GLCode", GLCode);
+                        cmd.Parameters.AddWithValue("@GLClass", GLClass);
                         cmd.Parameters.AddWithValue("@ProductId", productId);
                         cmd.ExecuteNonQuery();
                     }
@@ -125,8 +121,6 @@ namespace CASAweb
                 }
 
                 string code = GenerateUniqueCode();
-
-                //category to save in db
                 string catToSave = category == "Others" ? otherCategory : category;
 
                 string query = @"INSERT INTO ProductTable 
@@ -185,6 +179,10 @@ namespace CASAweb
             Name.Text = string.Empty;
             Category.SelectedIndex = 0;
             OtherCategory.Text = string.Empty;
+            InterestPayable.Checked = false;
+            InterestExpense.Checked = false;
+            GeneralFeeIncome.Checked = false;
+            MaintenanceFee.Checked = false;
             ShouldApplyFees.Checked = false;
             Fees.Text = string.Empty;
             ShouldPayInterest.Checked = false;

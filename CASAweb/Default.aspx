@@ -14,19 +14,19 @@
             var applyInterestDiv = $("#applyInterestDiv");
             var otherCategoryInput = $('#<%= OtherCategory.ClientID %>');
             if (category === 'Others') {
-                console.log("other")
                 otherCategoryDiv.show();
                 otherCategoryInput.attr('required', 'required');
             } else {
                 otherCategoryDiv.hide();
-                otherCategoryInput.val(""); // Clear the input
+                otherCategoryInput.val("");
                 otherCategoryInput.removeAttr('required');
             }
             if (category === "CURRENT") {
-                console.log("in current");
                 applyInterestDiv.find('input').prop('disabled', true).prop('checked', false);
+                applyInterestDiv.attr('title', 'Interest is not applicable for current products');
             } else {
                 applyInterestDiv.find('input').prop('disabled', false);
+                applyInterestDiv.removeAttr("title")
             }
         }
 
@@ -68,7 +68,7 @@
             var message = $('#<%= HiddenMessage.ClientID %>').val();
             if (message) {
                 alert(message);
-                $('#<%= HiddenMessage.ClientID %>').val(''); // Clear the hidden field
+                $('#<%= HiddenMessage.ClientID %>').val('');
                 handleCategoryChange();
             }
         })
@@ -154,7 +154,6 @@
             transform: translateX(26px);
         }
 
-        /* Rounded sliders */
         .slider.round {
             border-radius: 34px;
         }
@@ -211,22 +210,15 @@
                 </div>
                 <br />
             </div>
-
-            
-
+                     
             <div>
-                <%--<asp:Label AssociatedControlID="GLs" Text="General Ledger: " runat="server" />--%>
                 <p>Select applicable general ledgers:</p>
                     <asp:CheckBox runat="server" Text="Interest payable" ID="InterestPayable"></asp:CheckBox><br />
                     <asp:CheckBox runat="server" Text="Interest expense" ID="InterestExpense"></asp:CheckBox><br />
                     <asp:CheckBox runat="server" Text="General fee income" ID="GeneralFeeIncome"></asp:CheckBox><br />
                     <asp:CheckBox runat="server" Text="Maintenance fee" ID="MaintenanceFee"></asp:CheckBox><br />
                 <br />
-                <br />
             </div>
-
-
-
 
             <div>
                 <asp:Label AssociatedControlID="ShouldApplyFees" Text="Do you want to apply fees? " runat="server" />
